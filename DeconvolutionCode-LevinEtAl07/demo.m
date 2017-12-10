@@ -4,7 +4,7 @@ figure, imshow([I])
 title('input')
 drawnow
 
-
+% filt = fspecial('gaussian', 19, 3);
 figure, imshow(imresize(filt/max(filt(:)),20))
 title('kernel')
 drawnow
