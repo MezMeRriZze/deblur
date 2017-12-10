@@ -1,0 +1,14 @@
+im1 = im2double(imread('../kernelData/1.jpg'));
+im2 = im2double(imread('../kernelData/2.jpg'));
+[h,w,c] = size(im1);
+fs = 128;
+im2 = imresize(im2,[h,w],'bilinear');
+
+im1f = fft2(im1, fs, fs);
+im2f = fft2(im2, fs, fs);
+filf = im2f ./ im1f;
+% filf
+fil = ifft2(filf);
+imshow(fil)
+% blurred = imfilter(im1,fspecial('gaussian', 70,10));
+% imshow(blurred)
