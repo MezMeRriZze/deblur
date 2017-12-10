@@ -4,15 +4,21 @@ im3 = rgb2gray(im2double(imread('../kernelData/13.jpg')));
 im4 = rgb2gray(im2double(imread('../kernelData/14.jpg')));
 im5 = rgb2gray(im2double(imread('../kernelData/15.jpg')));
 im6 = rgb2gray(im2double(imread('../kernelData/16.jpg')));
-size(im1)
 imshow(im6)
 [h,w] = size(im1);
+h = h / 3.0;
+w = w / 3.0;
 fs = 1024;
 im2 = imresize(im2,[h,w],'bilinear');
 im3 = imresize(im3,[h,w],'bilinear');
 im4 = imresize(im4,[h,w],'bilinear');
 im5 = imresize(im5,[h,w],'bilinear');
 im6 = imresize(im6,[h,w],'bilinear');
+[sdI1]=deconvSps(im4,fspecial('gaussian', 19, 3 ) ,0.001,1);
+imshow(sdI1)
+disp('aaa')
+pause;
+size(im1)
 ims = cat(3, im2, im3, im4, im5, im6);
 % gs = [17,38,33,43,46];
 gs = [5,5,11,17,17];
