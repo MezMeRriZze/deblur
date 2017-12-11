@@ -1,4 +1,4 @@
-function [x]=deconvL2(I,filt1,we,max_it,z,lambda, rhot, isx)
+function [x]=deconvL(I,filt1,we,max_it,z,lambda, rhot, isx)
 %note: size(filt1) is expected to be odd in both dimensions 
 
 if (~exist('max_it','var'))
@@ -77,14 +77,14 @@ for iter = 1:max_it
         p = r;
      end
      if (max(size(filt1)<25))
-       Ap=conv2(conv2(p,fliplr(flipud(filt1)),'same').*mask,  filt1,'same');
+       Ap=conv2(conv2(p,rot90(filt1,2),'same').*mask,  filt1,'same');
      else  
-       Ap=fftconv(fftconv(p,fliplr(flipud(filt1)),'same').*mask,  filt1,'same');
+       Ap=fftconv(fftconv(p,rot90(filt1,2),'same').*mask,  filt1,'same');
      end
 
-     Ap=Ap+we*conv2(conv2(p,fliplr(flipud(dxf)),'valid'),dxf);
-     Ap=Ap+we*conv2(conv2(p,fliplr(flipud(dyf)),'valid'),dyf);
-     Ap = 2.0 * Ap + rhot;
+     Ap=Ap+we*conv2(conv2(p,rot90(dxf,2),'valid'),dxf);
+     Ap=Ap+we*conv2(conv2(p,rot90(dyf,2),'valid'),dyf);
+     Ap = 2.0 * Ap + rhot * p;
 
 
      q = Ap;
@@ -99,3 +99,67 @@ end
 
 
 x=x(hfs_y1+1:n-hfs_y2,hfs_x1+1:m-hfs_x2);
+% 
+% function [x]=deconvL(I,filt1,we,max_it,z,lambda, rhot, isx)
+% %note: size(filt1) is expected to be odd in both dimensions 
+% 
+% if (~exist('max_it','var'))
+%    max_it=200;
+% end
+% 
+% [n,m]=size(I);
+% 
+% b=2.0*conv2(I.*mask,filt1,'same');
+% b= b + rhot * z - isx * lambda;
+% 
+% dxf=[1 0 -1];
+% dyf=[1; 0; -1];
+% 
+% if (max(size(filt1)<25))
+%   Ax=2.0 * conv2(conv2(I,rot90(filt1,2),'same'),  filt1,'same');
+% else
+%   Ax=2.0 * fftconv(fftconv(I,rot90(filt1,2),'same'),  filt1,'same');
+% end
+% 
+% % disp('ax size')
+% % size(Ax)
+% Ax=Ax+2.0 * we*conv2(conv2(I,rot90(dxf,2),'same'),dxf);
+% Ax=Ax+2.0 * we*conv2(conv2(I,rot90(dyf,2),'same'),dyf);
+% Ax=Ax + rhot * I;
+% 
+% % size(b)
+% r = b - Ax;
+% 
+% for iter = 1:max_it  
+%      rho = (r(:)'*r(:));
+% 
+%      if ( iter > 1 ),                       % direction vector
+%         beta = rho / rho_1;
+%         p = r + beta*p;
+%      else
+%         p = r;
+%      end
+%      if (max(size(filt1)<25))
+%        Ap=conv2(conv2(p,fliplr(flipud(filt1)),'same').*mask,  filt1,'same');
+%      else  
+%        Ap=fftconv(fftconv(p,fliplr(flipud(filt1)),'same').*mask,  filt1,'same');
+%      end
+% 
+%      Ap=Ap+we*conv2(conv2(p,fliplr(flipud(dxf)),'valid'),dxf);
+%      Ap=Ap+we*conv2(conv2(p,fliplr(flipud(dyf)),'valid'),dyf);
+%      Ap = 2.0 * Ap + rhot;
+% 
+% 
+%      q = Ap;
+%      alpha = rho / (p(:)'*q(:) );
+%      x = x + alpha * p;                    % update approximation vector
+% 
+%      r = r - alpha*q;                      % compute residual
+% 
+%      rho_1 = rho;
+% end
+% 
+% 
+% 
+% x=x(hfs_y1+1:n-hfs_y2,hfs_x1+1:m-hfs_x2);
+
