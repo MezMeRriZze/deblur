@@ -59,7 +59,7 @@ end
 % size(Ax)
 Ax=Ax+we*conv2(conv2(x,fliplr(flipud(dxf)),'valid'),dxf);
 Ax=Ax+we*conv2(conv2(x,fliplr(flipud(dyf)),'valid'),dyf);
-Ax= 2.0 * Ax + rhot;
+Ax= 2.0 * Ax + rhot * x;
 
 
 
