@@ -1,4 +1,4 @@
-function [x]=deconvL2(I,filt1,we,max_it,z,lambda, rhot)
+function [x]=deconvL2(I,filt1,we,max_it,z,lambda, rhot, isx)
 %note: size(filt1) is expected to be odd in both dimensions 
 
 if (~exist('max_it','var'))
@@ -41,7 +41,7 @@ lambda = lambda([ones(1,hfs_y1),1:end,end*ones(1,hfs_y2)],[ones(1,hfs_x1),1:end,
 % size(x)
 % size(x.* mask)
 b=2.0*conv2(x.*mask,filt1,'same');
-b= b + rhot * z - lambda;
+b= b + rhot * z - isx * lambda;
 
 
 
