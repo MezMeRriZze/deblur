@@ -1,4 +1,4 @@
-function [x]=deconvL(I,filt1,we,max_it,z,lambda, rhot, isx)
+function [x]=deconvL(I,filt1,we,max_it,z,lambda, rhot, isx, terminator, threshold)
 %note: size(filt1) is expected to be odd in both dimensions 
 
 if (~exist('max_it','var'))
@@ -92,7 +92,14 @@ for iter = 1:max_it
      x = x + alpha * p;                    % update approximation vector
 
      r = r - alpha*q;                      % compute residual
-
+     residual = sum(sum(r.^2));
+     if terminator
+         if residual < threshold
+             residual
+             break;
+         end
+     end
+     
      rho_1 = rho;
 end
 

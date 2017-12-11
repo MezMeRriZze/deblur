@@ -25,7 +25,8 @@ ims = cat(3, im2, im3, im4, im5, im6);
 size(deconvL2(im3, filt2, 0.001, 50))
 load('getKernel_orig2blurred/filt.mat');
 load('demo_inp')
-imOut = ADMMForTwoPictures(I, I, 0.01, 2.0, filt, filt, 100, 200);
+% imOut = ADMMForTwoPictures(I, I, 0.01, 2.0, filt, filt, 500, 200);
+imOut = ADMMForTwoPictures(im2, im3, filt1, filt2, true, 2.0, 0.01, 50, 50, 5.0, 1e-4);
 % imOut = ADMMForTwoPictures(im2, im3, 0.01, 0.1, filt1, filt2, 100, 50);
 % 
 % size(filt1)

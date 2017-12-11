@@ -1,8 +1,5 @@
-function [ imOut ] = ADMMForTwoPictures( im1, im2, we, rhoMax, filt1, filt2, iter, cgiter, neat )
+function [ imOut ] = ADMMForTwoPictures( im1, im2, filt1, filt2, terminator, rhoMax, we, iter, cgiter, mult, rhoInit, ADMMTerminater, CGTerminator, neat )
 
-if (~exist('neat','var'))
-   neat=1;
-end
 %   Detailed explanation goes here
 % im1 and im2 should be of the same size
 % rho is the parameter of the augmented lagrange multiplier
@@ -14,14 +11,49 @@ end
 % are aligned well. Conjugate gradient method is used when minimizing each
 % individual problem and use the augmented lagrange multiplier to link the
 % two problems together.
+if (~exist('terminator','var'))
+   terminator = true;
+end
+if (~exist('ADMMTerminater','var'))
+   ADMMTerminater=1e-4;
+   terminator = true;
+end
+if (~exist('CGTerminator','var'))
+   CGTerminator=1e-4;
+   terminator = true;
+end
+if (~exist('we','var'))
+   we=0.001;
+end
+if (~exist('rhoMax','var'))
+   rhoMax=4;
+end
+if (~exist('iter','var'))
+   iter=50;
+end
+if (~exist('cgiter','var'))
+   cgiter=50;
+end
+if (~exist('rhoInit','var'))
+   rhoInit=1e-4;
+end
+if (~exist('mult','var'))
+   mult=1.1;
+end
+if (~exist('neat','var'))
+   neat=1;
+end
 [h , w] = size(im1);
 lambda = zeros(size(im1));
-x = rand(size(im1));
-z = rand(size(im1));
-rho = 1e-4
+x = zeros(size(im1));
+z = deconvL2(im2, filt2, we, cgiter);
+rho = rhoInit;
+g1 = [1 0 -1];
+g2 = [1; 0; -1];
 for i = 1 : iter
-    x = deconvL(im1, filt1, we, cgiter, z, lambda, rho);
-    z = deconvL(im2, filt2, we, cgiter, x, lambda, rho);
+    i
+    x = deconvL(im1, filt1, we, cgiter, z, lambda, rho, 1, terminator, CGTerminator);
+    z = deconvL(im2, filt2, we, cgiter, x, lambda, rho, -1, terminator, CGTerminator);
     lambda = lambda + (x - z) .* rho;
     disp('showing figure x press enter to show figure z')
     figure(1), imshow(reshape(x, [h w]))
@@ -33,7 +65,27 @@ for i = 1 : iter
     if ~neat
         pause;
     end
-    rho = min(rho * 1.1, rhoMax);
+    if terminator
+        primalFeasi = x - z;
+        xdualFeasi = - 2.0 * conv2(im1, filt1, 'same') + ...
+            2.0 * conv2(conv2(x,rot90(filt1,2),'same'),  filt1,'same') + ...
+            2.0 * w * conv2(conv2(x,rot90(g1,2),'same'),  g1,'same') + ...
+            2.0 * w * conv2(conv2(x,rot90(g2,2),'same'),  g2,'same') + ...
+            lambda;
+        zdualFeasi = - 2.0 * conv2(im2, filt2, 'same') + ...
+            2.0 * conv2(conv2(z,rot90(filt2,2),'same'),  filt2,'same') + ...
+            2.0 * w * conv2(conv2(z,rot90(g1,2),'same'),  g1,'same') + ...
+            2.0 * w * conv2(conv2(z,rot90(g2,2),'same'),  g2,'same') - ...
+            lambda;
+        primalFeasi = sum(sum(primalFeasi.^2))
+        xdualFeasi = sum(sum(xdualFeasi.^2))
+        zdualFeasi = sum(sum(zdualFeasi.^2))
+        if primalFeasi <= ADMMTerminater && xdualFeasi <= ADMMTerminater && ...
+               zdualFeasi <= ADMMTerminater
+            break;
+        end
+    end
+    rho = min(rho * mult, rhoMax);
 end
 
 
@@ -56,7 +108,7 @@ end
 % [l] = size(im1(:));
 % g1 = [-1 0 1];
 % g2 = [-1; 0; 1];
-% 
+% size(convmtx2(filt1, h, w))
 % Cf1 = clipCvMt(convmtx2(filt1, h, w), h, w, fsh, fsw);
 % Cf2 = clipCvMt(convmtx2(filt2, h, w), h, w, fsh, fsw);
 % Cg1 = clipCvMt(convmtx2(g1, h, w), h, w, 1, 3);
@@ -67,19 +119,22 @@ end
 % lambda = (im1(:) + im2(:)) ./ 2;
 % y1 = im1(:);
 % y2 = im2(:);
-% A1 = Cf1' * Cf1 .* 2.0 + Cg1' * Cg1 .* we .* 2.0 + Cg2' * Cg2 .* we .* 2.0 + rho;
-% A2 = Cf2' * Cf2 .* 2.0 + Cg1' * Cg1 .* we .* 2.0 + Cg2' * Cg2 .* we .* 2.0 + rho;
-% 
+% A1 = Cf1' * Cf1 .* 2.0 + Cg1' * Cg1 .* we .* 2.0 + Cg2' * Cg2 .* we .* 2.0;
+% A2 = Cf2' * Cf2 .* 2.0 + Cg1' * Cg1 .* we .* 2.0 + Cg2' * Cg2 .* we .* 2.0;
+% rho = 1e-4;
 % for i = 1 : iter
 %     i
 %     size(Cf1)
 %     size(y1)
 %     size(Cg1)
+%     A = A1 + rho;
 %     b1 = Cf1' * y1 .* 2.0 + z .* rho - lambda;
-%     x = pcg(A1, b1);
-%     b2 = Cf2' * y2 .* 2.0 + x .* rho - lambda;
-%     z = pcg(A2, b2);
+%     x = pcg(A, b1);
+%     b2 = Cf2' * y2 .* 2.0 + x .* rho + lambda;
+%     A = A2 + rho;
+%     z = pcg(A, b2);
 %     lambda = lambda + (x - z) .* rho;
+%     rho = min(rho * 1.1, rhoMax);
 %     figure(1), imshow(reshape(x, [h w]))
 %     pause;
 %     figure(2), imshow(reshape(z, [h w]))
