@@ -15,12 +15,15 @@ im5 = imresize(im5,[h,w],'bilinear');
 im6 = imresize(im6,[h,w],'bilinear');
 ims = cat(3, im2, im3, im4, im5, im6);
 im1f = fft2(im1, h, w);
+figure(1), hold off, imagesc(log(abs(fftshift(im1f)))), axis off, colormap jet, axis image
 im2f = fft2(im6, h, w);
+figure(2), hold off, imagesc(log(abs(fftshift(im2f)))), axis off, colormap jet, axis image
 filf = im2f ./ im1f;
+figure(3), hold off, imagesc(log(abs(fftshift(filf)))), axis off, colormap jet, axis image
 % % filf
-imshow(ifft2(im1f .* filf))
-fil = ifft2(filf, fs, fs);
-imshow(filter2(fil, im1))
+% imshow(ifft2(im1f .* filf))
+% fil = ifft2(filf, fs, fs);
+% imshow(filter2(fil, im1))
 % fil = ifft2(filf);
 % imshow(filter2( fil, im1))
 % % fil

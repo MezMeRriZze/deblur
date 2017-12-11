@@ -41,8 +41,8 @@ b=conv2(x.*mask,filt1,'same');
 
 
 
-dxf=[1 -1];
-dyf=[1;-1];
+dxf=[1 0 -1];
+dyf=[1; 0; -1];
 
 
 if (max(size(filt1)<25))
@@ -56,7 +56,7 @@ Ax=Ax+we*conv2(conv2(x,fliplr(flipud(dxf)),'valid'),dxf);
 Ax=Ax+we*conv2(conv2(x,fliplr(flipud(dyf)),'valid'),dyf);
 
 
-
+size(b)
 r = b - Ax;
 
 for iter = 1:max_it  
