@@ -32,7 +32,7 @@ mask(hfs_y1+1:n-hfs_y2,hfs_x1+1:m-hfs_x2)=1;
 
 tI=I;
 I=zeros(n,m);
-I(hfs_y1+1:n-hfs_y2,hfs_x1+1:m-hfs_x2)=tI; 
+% I(hfs_y1+1:n-hfs_y2,hfs_x1+1:m-hfs_x2)=tI; 
 x=tI([ones(1,hfs_y1),1:end,end*ones(1,hfs_y2)],[ones(1,hfs_x1),1:end,end*ones(1,hfs_x2)]);
 
 

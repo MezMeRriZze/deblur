@@ -46,40 +46,42 @@ end
 [h , w] = size(im1);
 lambda = zeros(size(im1));
 x = zeros(size(im1));
-z = deconvL2(im2, filt2, we, cgiter);
+z = im2;
+% z = deconvL2(im2, filt2, we, cgiter);
 rho = rhoInit;
 g1 = [1 0 -1];
 g2 = [1; 0; -1];
 for i = 1 : iter
-    i
-    x = deconvL(im1, filt1, we, cgiter, z, lambda, rho, 1, terminator, CGTerminator);
-    z = deconvL(im2, filt2, we, cgiter, x, lambda, rho, -1, terminator, CGTerminator);
+    x = deconvL_new(im1, filt1, we, cgiter, z, lambda, rho, 1, terminator, CGTerminator);
+    z = deconvL_new(im2, filt2, we, cgiter, x, lambda, rho, -1, terminator, CGTerminator);
     lambda = lambda + (x - z) .* rho;
     disp('showing figure x press enter to show figure z')
-    figure(1), imshow(reshape(x, [h w]))
+%     figure(1), imshow(reshape(x, [h w 3]))
+    figure(1), imshow(x);
     if ~neat
         pause;
     end
     disp('showing figure z press enter to run next iteration')
-    figure(2), imshow(reshape(z, [h w]))
+%     figure(2), imshow(reshape(z, [h w 3]))
+    figure(2), imshow(z);
     if ~neat
         pause;
     end
     if terminator
         primalFeasi = x - z;
-        xdualFeasi = - 2.0 * conv2(im1, filt1, 'same') + ...
-            2.0 * conv2(conv2(x,rot90(filt1,2),'same'),  filt1,'same') + ...
-            2.0 * w * conv2(conv2(x,rot90(g1,2),'same'),  g1,'same') + ...
-            2.0 * w * conv2(conv2(x,rot90(g2,2),'same'),  g2,'same') + ...
+        xdualFeasi = - 2.0 * my_conv2(im1, filt1, 'same') + ...
+            2.0 * my_conv2(my_conv2(x,rot90(filt1,2),'same'),  filt1,'same') + ...
+            2.0 * w * my_conv2(my_conv2(x,rot90(g1,2),'same'),  g1,'same') + ...
+            2.0 * w * my_conv2(my_conv2(x,rot90(g2,2),'same'),  g2,'same') + ...
             lambda;
-        zdualFeasi = - 2.0 * conv2(im2, filt2, 'same') + ...
-            2.0 * conv2(conv2(z,rot90(filt2,2),'same'),  filt2,'same') + ...
-            2.0 * w * conv2(conv2(z,rot90(g1,2),'same'),  g1,'same') + ...
-            2.0 * w * conv2(conv2(z,rot90(g2,2),'same'),  g2,'same') - ...
+        zdualFeasi = - 2.0 * my_conv2(im2, filt2, 'same') + ...
+            2.0 * my_conv2(my_conv2(z,rot90(filt2,2),'same'),  filt2,'same') + ...
+            2.0 * w * my_conv2(my_conv2(z,rot90(g1,2),'same'),  g1,'same') + ...
+            2.0 * w * my_conv2(my_conv2(z,rot90(g2,2),'same'),  g2,'same') - ...
             lambda;
-        primalFeasi = sum(sum(primalFeasi.^2))
-        xdualFeasi = sum(sum(xdualFeasi.^2))
-        zdualFeasi = sum(sum(zdualFeasi.^2))
+        primalFeasi = sum(sum(sum(primalFeasi.^2)))
+        xdualFeasi = sum(sum(sum(xdualFeasi.^2)))
+        zdualFeasi = sum(sum(sum(zdualFeasi.^2)))
         if primalFeasi <= ADMMTerminater && xdualFeasi <= ADMMTerminater && ...
                zdualFeasi <= ADMMTerminater
             break;
@@ -89,15 +91,15 @@ for i = 1 : iter
 end
 
 
-figure(1), imshow(reshape(x, [h w]))
+figure(1), imshow(x)
 if ~neat
     pause;
 end
-figure(2), imshow(reshape(z, [h w]))
+figure(2), imshow(z)
 if ~neat
     pause;
 end
-imOut = reshape(x, [h w]);
+imOut = x;
 end
 
 

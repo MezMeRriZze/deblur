@@ -21,8 +21,9 @@ function f = calc_filter( img_orig, img_blurred, filter_size, half_size )
     f = zeros(filter_size,filter_size);
     f(1:filter_size*filter_size) = v(1:filter_size*filter_size);
     
-    figure, imshow(img_blurred);
-    figure, imshow(imfilter(img_orig, f));
+    figure, imshow(img_blurred(1+half_size:end-half_size, 1+half_size:end-half_size));
+    im_ck = imfilter(img_orig, f);
+    figure, imshow(im_ck(1+half_size:end-half_size, 1+half_size:end-half_size));
     f_show = (f-min(f(:))) / (max(f(:))-min(f(:)));
     figure, imshow(imresize(f_show,20));
 
