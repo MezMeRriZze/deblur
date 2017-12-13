@@ -6,15 +6,19 @@ function result = my_conv2( I, filt, str )
         str = 'full';
     end
     
-    r = conv2(I(:,:,1), filt, str);
-    g = conv2(I(:,:,2), filt, str);
-    b = conv2(I(:,:,3), filt, str);
-    
-    result = zeros(size(r,1), size(r,2), 3);
-    
-    result(:,:,1) = r;
-    result(:,:,2) = g;
-    result(:,:,3) = b;
+    [n m k] = size(I);
+    if (k == 1)
+        result = conv2(I, filt, str);
+    else
+        r = conv2(I(:,:,1), filt, str);
+        g = conv2(I(:,:,2), filt, str);
+        b = conv2(I(:,:,3), filt, str);
 
+        result = zeros(size(r,1), size(r,2), 3);
+
+        result(:,:,1) = r;
+        result(:,:,2) = g;
+        result(:,:,3) = b;
+    end
 end
 

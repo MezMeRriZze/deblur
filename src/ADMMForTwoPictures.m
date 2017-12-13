@@ -67,6 +67,8 @@ for i = 1 : iter
     if ~neat
         pause;
     end
+    imwrite(x, sprintf('../result/compare/x-%d.jpg', i));
+    imwrite(z, sprintf('../result/compare/z-%d.jpg', i));
     if terminator
         primalFeasi = x - z;
         xdualFeasi = - 2.0 * my_conv2(im1, filt1, 'same') + ...
