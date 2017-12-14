@@ -62,20 +62,59 @@ Ax=Ax+we*my_conv2(my_conv2(x,rot90(dyf,2),'valid'),dyf);
 Ax= 2.0 * Ax + rhot * x;
 
 
-
+% r = b - Ax;
+% 
+% for iter = 1:max_it  
+%      rho = (r(:)'*r(:));
+% 
+%      if ( iter > 1 ),                       % direction vector
+%         beta = rho / rho_1;
+%         p = r + beta*p;
+%      else
+%         p = r;
+%      end
+%      if (max(size(filt1)<25))
+%        Ap=my_conv2(my_conv2(p,rot90(filt1,2),'same').*mask,  filt1,'same');
+%      else  
+%        Ap=my_fftconv(my_fftconv(p,rot90(filt1,2),'same').*mask,  filt1,'same');
+%      end
+% 
+%      Ap=Ap+we*my_conv2(my_conv2(p,rot90(dxf,2),'valid'),dxf);
+%      Ap=Ap+we*my_conv2(my_conv2(p,rot90(dyf,2),'valid'),dyf);
+%      Ap = 2.0 * Ap + rhot * p;
+% 
+% 
+%      q = Ap;
+%      alpha = rho / (p(:)'*q(:) );
+%      x = x + alpha * p;                    % update approximation vector
+% 
+%      r = r - alpha*q;                      % compute residual
+%      residual = sum(sum(r.^2));
+%      if terminator
+%          if residual < threshold
+%              residual
+%              break;
+%          end
+%      end
+%      
+%      rho_1 = rho;
+% end
 
 % size(b)
 r = b - Ax;
-
+r0h = r;
+rho = 1;
+alpha = 1;
+omega = 1;
+v = zeros(size(r0h));
+p = zeros(size(r));
 for iter = 1:max_it  
-     rho = (r(:)'*r(:));
-
-     if ( iter > 1 ),                       % direction vector
-        beta = rho / rho_1;
-        p = r + beta*p;
-     else
-        p = r;
-     end
+     rhoim = rho;
+     rho = (r0h(:)'*r(:));
+        
+     beta = (rho / rhoim) * (alpha / omega);
+     p = r + beta * (p - omega*v);
+     
      if (max(size(filt1)<25))
        Ap=my_conv2(my_conv2(p,rot90(filt1,2),'same').*mask,  filt1,'same');
      else  
@@ -87,11 +126,25 @@ for iter = 1:max_it
      Ap = 2.0 * Ap + rhot * p;
 
 
-     q = Ap;
-     alpha = rho / (p(:)'*q(:) );
-     x = x + alpha * p;                    % update approximation vector
+     v = Ap;
+     alpha = rho / (r0h(:)' * v(:));
+     h = x + alpha * p;
+     
+     s = r - alpha * v;
+     if (max(size(filt1)<25))
+       As=my_conv2(my_conv2(s,rot90(filt1,2),'same').*mask,  filt1,'same');
+     else  
+       As=my_fftconv(my_fftconv(s,rot90(filt1,2),'same').*mask,  filt1,'same');
+     end
 
-     r = r - alpha*q;                      % compute residual
+     As=As+we*my_conv2(my_conv2(s,rot90(dxf,2),'valid'),dxf);
+     As=As+we*my_conv2(my_conv2(s,rot90(dyf,2),'valid'),dyf);
+     As = 2.0 * As + rhot * s;
+     t = As;
+     
+     omega = (t(:)' * s(:)) / (t(:)' * t(:));
+     x = h + omega * s;
+     r = s - omega * t;
      residual = sum(sum(r.^2));
      if terminator
          if residual < threshold
@@ -99,8 +152,6 @@ for iter = 1:max_it
              break;
          end
      end
-     
-     rho_1 = rho;
 end
 
 

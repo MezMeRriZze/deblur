@@ -38,7 +38,7 @@ figure(1), imshow(im2);
 figure(2), imshow(im3);
 imwrite(im2, '../result/compare/im1.jpg');
 imwrite(im3, '../result/compare/im2.jpg');
-imOut = ADMMForTwoPictures(im2, im3, filt1, filt2, true, 2.0, 0.01, 50, 50, 5.0, 1e-4);
+imOut = ADMMForTwoPictures(im2, im3, filt1, filt2, true, 2.0, 0.01, 50, 200, 5.0, 1e-4);
 % imOut = ADMMForTwoPictures(im2, im3, 0.01, 0.1, filt1, filt2, 100, 50);
 % 
 % size(filt1)
