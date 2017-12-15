@@ -27,7 +27,7 @@ for i=3:3
         
         best = 1e100;
         
-        for f1 = 1:4 
+        for f1 = 2:4 
             filt1 = reshape(filts1(f1, :, :), [filter_size, filter_size]);
             for f2 = 1:4
                 filt2 = reshape(filts2(f1, :, :), [filter_size, filter_size]);   
@@ -46,8 +46,8 @@ for i=3:3
                     k1 = f1; k2 = f2;
                     tmp = imOut;
                 end
-                f1
-                f2
+                k1
+                k2
             end
         end
         
